@@ -2,6 +2,8 @@
 #include <Windows.h>
 #include <TlHelp32.h>
 
+#define PROCESS_NAME "csgo.exe"
+
 // Your DLL as a byte array
 static const uint8_t binary[] = {
 0x4d, 0x5a, 0x80, 0x00, 0x01, 0x00, 0x00, 0x00, 0x04, 0x00, 0x10, 0x00, 0xff, 0xff, 0x00, 0x00,
@@ -201,7 +203,7 @@ int main(void)
 
     if (Process32First(processSnapshot, &processInfo)) {
         while (Process32Next(processSnapshot, &processInfo)) {
-            if (!strcmp(processInfo.szExeFile, "csgo.exe")) {
+            if (!strcmp(processInfo.szExeFile, PROCESS_NAME)) {
                 CloseHandle(processSnapshot);
                 process = OpenProcess(PROCESS_VM_WRITE | PROCESS_VM_OPERATION | PROCESS_CREATE_THREAD, FALSE, processInfo.th32ProcessID);
             }
