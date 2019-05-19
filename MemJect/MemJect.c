@@ -140,6 +140,7 @@ typedef struct {
     LPVOID imageBase;
     HMODULE(__stdcall* loadLibraryA)(LPCSTR);
     FARPROC(__stdcall* getProcAddress)(HMODULE, LPCSTR);
+    void(__stdcall* rtlZeroMemory)(void*, size_t);
 } LoaderData;
 
 DWORD __stdcall loadLibrary(LoaderData* loaderData)
@@ -240,9 +241,4 @@ int main(void)
     WaitForSingleObject(CreateRemoteThread(process, NULL, 0, (LPTHREAD_START_ROUTINE)(loaderMemory + 1),
         loaderMemory, 0, NULL), INFINITE);
     VirtualFreeEx(process, loaderMemory, 0, MEM_RELEASE);
-    uint8_t * zero = calloc(ntHeaders->OptionalHeader.SizeOfHeaders, sizeof(uint8_t));
-
-    WriteProcessMemory(process, executableImage, zero, ntHeaders->OptionalHeader.SizeOfHeaders, NULL);
-    WriteProcessMemory(process, (LPBYTE)executableImage + ntHeaders->OptionalHeader.AddressOfEntryPoint, zero, 32, NULL);
-    free(zero);
 }
