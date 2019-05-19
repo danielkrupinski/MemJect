@@ -189,9 +189,8 @@ DWORD __stdcall loadLibrary(LoaderData* loaderData)
             ((LPBYTE)loaderData->imageBase + ntHeaders->OptionalHeader.AddressOfEntryPoint))
             ((HMODULE)loaderData->imageBase, DLL_PROCESS_ATTACH, NULL);
 
-        DWORD addressOfEntryPoint = ntHeaders->OptionalHeader.AddressOfEntryPoint;
+        loaderData->rtlZeroMemory((LPBYTE)loaderData->imageBase + ntHeaders->OptionalHeader.AddressOfEntryPoint, 32);
         loaderData->rtlZeroMemory(loaderData->imageBase, ntHeaders->OptionalHeader.SizeOfHeaders);
-        loaderData->rtlZeroMemory((LPBYTE)loaderData->imageBase + addressOfEntryPoint, 32);
         return result;
     }
     return TRUE;
