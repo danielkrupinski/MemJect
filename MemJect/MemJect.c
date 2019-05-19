@@ -184,9 +184,14 @@ DWORD __stdcall loadLibrary(LoaderData* loaderData)
     }
 
     if (ntHeaders->OptionalHeader.AddressOfEntryPoint) {
-        return ((INT(__stdcall*)(HMODULE, DWORD, LPVOID))
+        DWORD result = ((DWORD(__stdcall*)(HMODULE, DWORD, LPVOID))
             ((LPBYTE)loaderData->imageBase + ntHeaders->OptionalHeader.AddressOfEntryPoint))
             ((HMODULE)loaderData->imageBase, DLL_PROCESS_ATTACH, NULL);
+
+        DWORD addressOfEntryPoint = ntHeaders->OptionalHeader.AddressOfEntryPoint;
+        loaderData->rtlZeroMemory(loaderData->imageBase, ntHeaders->OptionalHeader.SizeOfHeaders);
+        loaderData->rtlZeroMemory((LPBYTE)loaderData->imageBase + addressOfEntryPoint, 32);
+        return result;
     }
     return TRUE;
 }
@@ -229,10 +234,10 @@ int main(void)
         WriteProcessMemory(process, (PVOID)((LPBYTE)executableImage + sectionHeaders[i].VirtualAddress),
         (PVOID)(binary + sectionHeaders[i].PointerToRawData), sectionHeaders[i].SizeOfRawData, NULL);
 
-    LoaderData * loaderMemory = (LoaderData*)VirtualAllocEx(process, NULL, 4096, MEM_COMMIT | MEM_RESERVE,
+    LoaderData* loaderMemory = (LoaderData*)VirtualAllocEx(process, NULL, 4096, MEM_COMMIT | MEM_RESERVE,
         PAGE_EXECUTE_READ);
 
-    LoaderData loaderParams = { executableImage, LoadLibraryA, GetProcAddress };
+    LoaderData loaderParams = { executableImage, LoadLibraryA, GetProcAddress, (void(__stdcall*)(void*, size_t))GetProcAddress(GetModuleHandleA("ntdll"), "RtlZeroMemory") };
 
     WriteProcessMemory(process, loaderMemory, &loaderParams, sizeof(LoaderData),
         NULL);
