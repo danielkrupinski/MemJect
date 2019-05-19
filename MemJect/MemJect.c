@@ -161,23 +161,23 @@ DWORD __stdcall loadLibrary(LoaderData* loaderData)
         + ntHeaders->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress);
 
     while (importDirectory->Characteristics) {
-        PIMAGE_THUNK_DATA OrigFirstThunk = (PIMAGE_THUNK_DATA)((LPBYTE)loaderData->imageBase + importDirectory->OriginalFirstThunk);
-        PIMAGE_THUNK_DATA FirstThunk = (PIMAGE_THUNK_DATA)((LPBYTE)loaderData->imageBase + importDirectory->FirstThunk);
+        PIMAGE_THUNK_DATA originalFirstThunk = (PIMAGE_THUNK_DATA)((LPBYTE)loaderData->imageBase + importDirectory->OriginalFirstThunk);
+        PIMAGE_THUNK_DATA firstThunk = (PIMAGE_THUNK_DATA)((LPBYTE)loaderData->imageBase + importDirectory->FirstThunk);
 
         HMODULE module = loaderData->loadLibraryA((LPCSTR)loaderData->imageBase + importDirectory->Name);
 
         if (!module)
             return FALSE;
 
-        while (OrigFirstThunk->u1.AddressOfData) {
-            DWORD Function = (DWORD)loaderData->getProcAddress(module, OrigFirstThunk->u1.Ordinal & IMAGE_ORDINAL_FLAG ? (LPCSTR)(OrigFirstThunk->u1.Ordinal & 0xFFFF) : ((PIMAGE_IMPORT_BY_NAME)((LPBYTE)loaderData->imageBase + OrigFirstThunk->u1.AddressOfData))->Name);
+        while (originalFirstThunk->u1.AddressOfData) {
+            DWORD Function = (DWORD)loaderData->getProcAddress(module, originalFirstThunk->u1.Ordinal & IMAGE_ORDINAL_FLAG ? (LPCSTR)(originalFirstThunk->u1.Ordinal & 0xFFFF) : ((PIMAGE_IMPORT_BY_NAME)((LPBYTE)loaderData->imageBase + originalFirstThunk->u1.AddressOfData))->Name);
 
             if (!Function)
                 return FALSE;
 
-            FirstThunk->u1.Function = Function;
-            OrigFirstThunk++;
-            FirstThunk++;
+            firstThunk->u1.Function = Function;
+            originalFirstThunk++;
+            firstThunk++;
         }
         importDirectory++;
     }
