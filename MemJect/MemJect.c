@@ -5,6 +5,9 @@
 // Target process name
 #define PROCESS_NAME "csgo.exe"
 
+#define ERASE_ENTRY_POINT
+#define ERASE_PE_HEADER
+
 // Your DLL as a byte array
 static const uint8_t binary[] = {
 0x4d, 0x5a, 0x80, 0x00, 0x01, 0x00, 0x00, 0x00, 0x04, 0x00, 0x10, 0x00, 0xff, 0xff, 0x00, 0x00,
@@ -189,8 +192,13 @@ DWORD __stdcall loadLibrary(LoaderData* loaderData)
             ((LPBYTE)loaderData->imageBase + ntHeaders->OptionalHeader.AddressOfEntryPoint))
             ((HMODULE)loaderData->imageBase, DLL_PROCESS_ATTACH, NULL);
 
+#ifdef ERASE_ENTRY_POINT
         loaderData->rtlZeroMemory((LPBYTE)loaderData->imageBase + ntHeaders->OptionalHeader.AddressOfEntryPoint, 32);
+#endif
+
+#ifdef ERASE_PE_HEADER
         loaderData->rtlZeroMemory(loaderData->imageBase, ntHeaders->OptionalHeader.SizeOfHeaders);
+#endif
         return result;
     }
     return TRUE;
