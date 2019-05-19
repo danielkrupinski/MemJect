@@ -6,3 +6,15 @@ Simple Dll injector loading from memory. Supports PE header and entry point eras
 * load Dll from byte array in memory, without storing dll file on disk
 * erase DllEntryPoint
 * erase PE header
+
+## Getting started
+
+### Prerequisites
+C99 compiler for Windows is required in order to compile MemJect. Microsoft Visual Studio is required to load solution for easy compilation (MemJect.sln).
+
+### Cloning
+The very first step in order to compile MemJect is to clone this repo from GitHub to your local computer. Git is required to step futher, if not installed download it [here](https://git-scm.com). Open git bash / git cmd / cmd and enter following command:
+```
+git clone https://github.com/danielkrupinski/MemJect.git
+```
+`MemJect` folder should have been succesfully created, containing all the source files.
