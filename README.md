@@ -18,3 +18,21 @@ The very first step in order to compile MemJect is to clone this repo from GitHu
 git clone https://github.com/danielkrupinski/MemJect.git
 ```
 `MemJect` folder should have been succesfully created, containing all the source files.
+
+### Compiling from source
+
+When you have equiped a copy of source code, next step is opening **MemJect.sln** in Microsoft Visual Studio. If you don't have Visual Studio, compile **MemJect.cpp** using your compilator.
+
+Find below line in **MemJect.cpp** and replace **csgo.exe** with your destination process name:
+```c
+#define PROCESS_NAME "csgo.exe"
+```
+
+Find below line in **MemJect.cpp** and supply you dll in form of byte array there.
+You can use [my python script](https://github.com/danielkrupinski/PE2HEX) to convert dll to array of bytes or pretty any hex-editor with `export to C` function.
+```c
+static const uint8_t binary[] = {
+```
+Then change build configuration to `Release | x86` and simply press **Build solution**.
+
+If everything went right you should receive `MemJect.exe` binary file.
