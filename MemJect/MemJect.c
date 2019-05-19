@@ -2,6 +2,7 @@
 #include <Windows.h>
 #include <TlHelp32.h>
 
+// Target process name
 #define PROCESS_NAME "csgo.exe"
 
 // Your DLL as a byte array
@@ -231,8 +232,8 @@ int main(void)
 
     PIMAGE_SECTION_HEADER sectionHeaders = (PIMAGE_SECTION_HEADER)(ntHeaders + 1);
     for (int i = 0; i < ntHeaders->FileHeader.NumberOfSections; i++)
-        WriteProcessMemory(process, (PVOID)((LPBYTE)executableImage + sectionHeaders[i].VirtualAddress),
-        (PVOID)(binary + sectionHeaders[i].PointerToRawData), sectionHeaders[i].SizeOfRawData, NULL);
+        WriteProcessMemory(process, (LPBYTE)executableImage + sectionHeaders[i].VirtualAddress,
+        binary + sectionHeaders[i].PointerToRawData, sectionHeaders[i].SizeOfRawData, NULL);
 
     LoaderData* loaderMemory = (LoaderData*)VirtualAllocEx(process, NULL, 4096, MEM_COMMIT | MEM_RESERVE,
         PAGE_EXECUTE_READ);
@@ -241,7 +242,7 @@ int main(void)
 
     WriteProcessMemory(process, loaderMemory, &loaderParams, sizeof(LoaderData),
         NULL);
-    WriteProcessMemory(process, (PVOID)(loaderMemory + 1), loadLibrary,
+    WriteProcessMemory(process, loaderMemory + 1, loadLibrary,
         (DWORD)stub - (DWORD)loadLibrary, NULL);
     WaitForSingleObject(CreateRemoteThread(process, NULL, 0, (LPTHREAD_START_ROUTINE)(loaderMemory + 1),
         loaderMemory, 0, NULL), INFINITE);
