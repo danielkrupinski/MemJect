@@ -28,8 +28,8 @@ Find below line in **MemJect.cpp** and replace **csgo.exe** with your destinatio
 #define PROCESS_NAME "csgo.exe"
 ```
 
-Find below line in **MemJect.cpp** and supply you dll in form of byte array there.
-You can use [my python script](https://github.com/danielkrupinski/PE2HEX) to convert dll to array of bytes or pretty any hex-editor with `export to C` function.
+Find below line in **MemJect.cpp** and supply your dll in form of byte array there.
+You can use [my python script](https://github.com/danielkrupinski/PE2HEX) to convert dll to array of bytes or almost any hex-editor with `export to C` function.
 ```c
 static const uint8_t binary[] = {
 0x4d, 0x5a, 0x80, 0x00, 0x01, ...
