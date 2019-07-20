@@ -5,8 +5,8 @@
 // Target process name
 #define PROCESS_NAME "csgo.exe"
 
-#define ERASE_ENTRY_POINT
-#define ERASE_PE_HEADER
+#define ERASE_ENTRY_POINT 1
+#define ERASE_PE_HEADER 1
 
 // Your DLL as a byte array
 static const uint8_t binary[] = {
@@ -192,11 +192,11 @@ DWORD WINAPI loadLibrary(LoaderData* loaderData)
             (loaderData->imageBase + ntHeaders->OptionalHeader.AddressOfEntryPoint))
             ((HMODULE)loaderData->imageBase, DLL_PROCESS_ATTACH, NULL);
 
-#ifdef ERASE_ENTRY_POINT
+#if ERASE_ENTRY_POINT
         loaderData->rtlZeroMemory(loaderData->imageBase + ntHeaders->OptionalHeader.AddressOfEntryPoint, 32);
 #endif
 
-#ifdef ERASE_PE_HEADER
+#if ERASE_PE_HEADER
         loaderData->rtlZeroMemory(loaderData->imageBase, ntHeaders->OptionalHeader.SizeOfHeaders);
 #endif
         return result;
