@@ -7,9 +7,14 @@
 
 #define ERASE_ENTRY_POINT 1
 #define ERASE_PE_HEADER 1
+#define DECRYPT_DLL 0
 
 // Your DLL as a byte array
-static const uint8_t binary[] = {
+static
+#if !DECRYPT_DLL
+const
+#endif
+uint8_t binary[] = {
 0x4d, 0x5a, 0x80, 0x00, 0x01, 0x00, 0x00, 0x00, 0x04, 0x00, 0x10, 0x00, 0xff, 0xff, 0x00, 0x00,
 0x40, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -140,6 +145,16 @@ static const uint8_t binary[] = {
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
 
+#if DECRYPT_DLL
+VOID decryptBinary(PCSTR key)
+{
+    SIZE_T keyLenth = strlen(key);
+
+    for (int i = 0; i < sizeof(binary); i++)
+        binary[i] ^= key[i % keyLenth];
+}
+#endif
+
 typedef struct {
     PBYTE imageBase;
     HMODULE(WINAPI* loadLibraryA)(PCSTR);
@@ -206,7 +221,7 @@ DWORD WINAPI loadLibrary(LoaderData* loaderData)
 
 VOID stub(VOID) { }
 
-INT main(VOID)
+INT main(INT argc, PCSTR* argv)
 {
     HANDLE processSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
     if (processSnapshot == INVALID_HANDLE_VALUE)
@@ -227,6 +242,17 @@ INT main(VOID)
         CloseHandle(processSnapshot);
         return 1;
     }
+
+#if DECRYPT_DLL
+    if (argc < 2)
+        return 1;
+    for (int i = 1; i < argc; i++) {
+        if (!strcmp(argv[i], "-key")) {
+            decryptBinary(argv[++i]);
+            break;
+        }
+    }
+#endif
 
     PIMAGE_DOS_HEADER dosHeader = (PIMAGE_DOS_HEADER)binary;
     PIMAGE_NT_HEADERS ntHeaders = (PIMAGE_NT_HEADERS)(binary + dosHeader->e_lfanew);
