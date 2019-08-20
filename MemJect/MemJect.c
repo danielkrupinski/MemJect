@@ -231,12 +231,12 @@ INT main(INT argc, PCSTR* argv)
     PROCESSENTRY32 processInfo = { sizeof(processInfo) };
 
     if (Process32First(processSnapshot, &processInfo)) {
-        while (Process32Next(processSnapshot, &processInfo)) {
+        do {
             if (!strcmp(processInfo.szExeFile, PROCESS_NAME)) {
                 CloseHandle(processSnapshot);
                 process = OpenProcess(PROCESS_VM_WRITE | PROCESS_VM_OPERATION | PROCESS_CREATE_THREAD, FALSE, processInfo.th32ProcessID);
             }
-        }
+        } while (Process32Next(processSnapshot, &processInfo));
     }
     if (!process) {
         CloseHandle(processSnapshot);
