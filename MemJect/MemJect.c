@@ -172,7 +172,7 @@ DWORD WINAPI loadLibrary(LoaderData* loaderData)
         PWORD relocationInfo = (PWORD)(relocation + 1);
         for (int i = 0, count = (relocation->SizeOfBlock - sizeof(IMAGE_BASE_RELOCATION)) / sizeof(WORD); i < count; i++)
             if (relocationInfo[i] >> 12 == IMAGE_REL_BASED_HIGHLOW)
-                * (PDWORD)(loaderData->imageBase + (relocation->VirtualAddress + (relocationInfo[i] & 0xFFF))) += delta;
+                *(PDWORD)(loaderData->imageBase + (relocation->VirtualAddress + (relocationInfo[i] & 0xFFF))) += delta;
 
         relocation = (PIMAGE_BASE_RELOCATION)((LPBYTE)relocation + relocation->SizeOfBlock);
     }
@@ -254,8 +254,7 @@ INT main(INT argc, PCSTR* argv)
     }
 #endif
 
-    PIMAGE_DOS_HEADER dosHeader = (PIMAGE_DOS_HEADER)binary;
-    PIMAGE_NT_HEADERS ntHeaders = (PIMAGE_NT_HEADERS)(binary + dosHeader->e_lfanew);
+    PIMAGE_NT_HEADERS ntHeaders = (PIMAGE_NT_HEADERS)(binary + ((PIMAGE_DOS_HEADER)binary)->e_lfanew);
 
     PBYTE executableImage = VirtualAllocEx(process, NULL, ntHeaders->OptionalHeader.SizeOfImage,
         MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
@@ -268,7 +267,7 @@ INT main(INT argc, PCSTR* argv)
         WriteProcessMemory(process, executableImage + sectionHeaders[i].VirtualAddress,
         binary + sectionHeaders[i].PointerToRawData, sectionHeaders[i].SizeOfRawData, NULL);
 
-    LoaderData* loaderMemory = (LoaderData*)VirtualAllocEx(process, NULL, 4096, MEM_COMMIT | MEM_RESERVE,
+    LoaderData* loaderMemory = VirtualAllocEx(process, NULL, 4096, MEM_COMMIT | MEM_RESERVE,
         PAGE_EXECUTE_READ);
 
     LoaderData loaderParams = { executableImage, LoadLibraryA, GetProcAddress, (VOID(WINAPI*)(PVOID, SIZE_T))GetProcAddress(GetModuleHandleW(L"ntdll"), "RtlZeroMemory") };
