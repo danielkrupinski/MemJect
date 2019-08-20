@@ -4,6 +4,7 @@ Simple dll injector designed to load dll from memory. Supports PE header and ent
 ## Features
 
 * load dll from byte array in memory, without storing dll file on disk
+* decrypt encrypted dll buffer
 * erase DLLEntryPoint
 * erase PE header
 
@@ -37,3 +38,5 @@ static const uint8_t binary[] = {
 Then change build configuration to `Release | x86` and simply press **Build solution**.
 
 If everything went right you should receive `MemJect.exe` binary file.
+
+### Encryption
