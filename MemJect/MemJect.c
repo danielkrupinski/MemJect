@@ -5,9 +5,9 @@
 // Target process name
 #define PROCESS_NAME "csgo.exe"
 
-#define ERASE_ENTRY_POINT 1
-#define ERASE_PE_HEADER 1
-#define DECRYPT_DLL 0
+#define ERASE_ENTRY_POINT    TRUE
+#define ERASE_PE_HEADER      TRUE
+#define DECRYPT_DLL          FALSE
 
 // Your DLL as a byte array
 static
