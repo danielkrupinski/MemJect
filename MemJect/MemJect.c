@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdio.h>
 #include <Windows.h>
 #include <TlHelp32.h>
 
@@ -8,6 +9,8 @@
 #define ERASE_ENTRY_POINT    TRUE
 #define ERASE_PE_HEADER      TRUE
 #define DECRYPT_DLL          FALSE
+
+#define SUCCESS_MESSAGE      TRUE
 
 // Your DLL as a byte array
 static
@@ -279,4 +282,10 @@ INT main(INT argc, PCSTR* argv)
     WaitForSingleObject(CreateRemoteThread(process, NULL, 0, (LPTHREAD_START_ROUTINE)(loaderMemory + 1),
         loaderMemory, 0, NULL), INFINITE);
     VirtualFreeEx(process, loaderMemory, 0, MEM_RELEASE);
+
+#if SUCCESS_MESSAGE
+    CHAR buf[100];
+    sprintf_s(buf, sizeof(buf), "Dll successfully loaded into %s at 0x%x", PROCESS_NAME, (DWORD)executableImage);
+    MessageBoxA(NULL, buf, "Success", MB_OK | MB_ICONINFORMATION);
+#endif
 }
