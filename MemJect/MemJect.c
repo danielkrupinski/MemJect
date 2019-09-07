@@ -224,7 +224,7 @@ DWORD WINAPI loadLibrary(LoaderData* loaderData)
 
 VOID stub(VOID) { }
 
-INT main(INT argc, PCSTR* argv)
+INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, INT nShowCmd)
 {
     HANDLE processSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
     if (processSnapshot == INVALID_HANDLE_VALUE)
@@ -247,14 +247,16 @@ INT main(INT argc, PCSTR* argv)
     }
 
 #if DECRYPT_DLL
-    if (argc < 2)
-        return 1;
-    for (int i = 1; i < argc; i++) {
-        if (!strcmp(argv[i], "-key")) {
+    INT argc;
+    PCWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+
+    for (INT i = 1; i < argc; i++) {
+        if (!wcscmp(argv[i], L"-key")) {
             decryptBinary(argv[++i]);
             break;
         }
     }
+    LocalFree(argv);
 #endif
 
     PIMAGE_NT_HEADERS ntHeaders = (PIMAGE_NT_HEADERS)(binary + ((PIMAGE_DOS_HEADER)binary)->e_lfanew);
@@ -288,4 +290,5 @@ INT main(INT argc, PCSTR* argv)
     sprintf_s(buf, sizeof(buf), "Dll successfully loaded into %s at 0x%x", PROCESS_NAME, (DWORD)executableImage);
     MessageBoxA(NULL, buf, "Success", MB_OK | MB_ICONINFORMATION);
 #endif
+    return TRUE;
 }
