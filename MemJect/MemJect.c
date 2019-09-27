@@ -236,15 +236,15 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     if (Process32First(processSnapshot, &processInfo)) {
         do {
             if (!strcmp(processInfo.szExeFile, PROCESS_NAME)) {
-                CloseHandle(processSnapshot);
                 process = OpenProcess(PROCESS_VM_WRITE | PROCESS_VM_OPERATION | PROCESS_CREATE_THREAD, FALSE, processInfo.th32ProcessID);
+                break;
             }
         } while (Process32Next(processSnapshot, &processInfo));
     }
-    if (!process) {
-        CloseHandle(processSnapshot);
+    CloseHandle(processSnapshot);
+
+    if (!process)
         return 1;
-    }
 
 #if DECRYPT_DLL
     INT argc;
