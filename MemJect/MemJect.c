@@ -4,7 +4,7 @@
 #include <TlHelp32.h>
 
 // Target process name
-#define PROCESS_NAME "csgo.exe"
+#define PROCESS_NAME L"csgo.exe"
 
 #define ERASE_ENTRY_POINT    TRUE
 #define ERASE_PE_HEADER      TRUE
@@ -231,16 +231,16 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         return 1;
 
     HANDLE process = NULL;
-    PROCESSENTRY32 processInfo;
+    PROCESSENTRY32W processInfo;
     processInfo.dwSize = sizeof(processInfo);
 
-    if (Process32First(processSnapshot, &processInfo)) {
+    if (Process32FirstW(processSnapshot, &processInfo)) {
         do {
-            if (!strcmp(processInfo.szExeFile, PROCESS_NAME)) {
+            if (!lstrcmpW(processInfo.szExeFile, PROCESS_NAME)) {
                 process = OpenProcess(PROCESS_VM_WRITE | PROCESS_VM_OPERATION | PROCESS_CREATE_THREAD, FALSE, processInfo.th32ProcessID);
                 break;
             }
-        } while (Process32Next(processSnapshot, &processInfo));
+        } while (Process32NextW(processSnapshot, &processInfo));
     }
     CloseHandle(processSnapshot);
 
@@ -252,7 +252,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     PCWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
 
     for (INT i = 1; i < argc; i++) {
-        if (!wcscmp(argv[i], L"-key")) {
+        if (!lstrcmpW(argv[i], L"-key")) {
             decryptBinary(argv[++i]);
             break;
         }
@@ -292,7 +292,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 #if SUCCESS_MESSAGE
     CHAR buf[100];
-    sprintf_s(buf, sizeof(buf), "Dll successfully loaded into %s at 0x%x", PROCESS_NAME, (DWORD)executableImage);
+    sprintf_s(buf, sizeof(buf), "Dll successfully loaded into %ws at 0x%x", PROCESS_NAME, (DWORD)executableImage);
     MessageBoxA(NULL, buf, "Success", MB_OK | MB_ICONINFORMATION);
 #endif
     return TRUE;
