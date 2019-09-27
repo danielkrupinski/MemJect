@@ -280,7 +280,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     loaderParams.imageBase = executableImage;
     loaderParams.loadLibraryA = LoadLibraryA;
     loaderParams.getProcAddress = GetProcAddress;
-    loaderParams.rtlZeroMemory = (VOID(NTAPI*)(PVOID, SIZE_T))GetProcAddress(GetModuleHandleW(L"ntdll"), "RtlZeroMemory");
+    loaderParams.rtlZeroMemory = (VOID(NTAPI*)(PVOID, SIZE_T))GetProcAddress(LoadLibraryW(L"ntdll"), "RtlZeroMemory");
 
     WriteProcessMemory(process, loaderMemory, &loaderParams, sizeof(LoaderData),
         NULL);
