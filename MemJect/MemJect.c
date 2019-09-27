@@ -231,7 +231,8 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         return 1;
 
     HANDLE process = NULL;
-    PROCESSENTRY32 processInfo = { sizeof(processInfo) };
+    PROCESSENTRY32 processInfo;
+    processInfo.dwSize = sizeof(processInfo);
 
     if (Process32First(processSnapshot, &processInfo)) {
         do {
@@ -275,7 +276,11 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     LoaderData* loaderMemory = VirtualAllocEx(process, NULL, 4096, MEM_COMMIT | MEM_RESERVE,
         PAGE_EXECUTE_READ);
 
-    LoaderData loaderParams = { executableImage, LoadLibraryA, GetProcAddress, (VOID(WINAPI*)(PVOID, SIZE_T))GetProcAddress(GetModuleHandleW(L"ntdll"), "RtlZeroMemory") };
+    LoaderData loaderParams;
+    loaderParams.imageBase = executableImage;
+    loaderParams.loadLibraryA = LoadLibraryA;
+    loaderParams.getProcAddress = GetProcAddress;
+    loaderParams.rtlZeroMemory = (VOID(NTAPI*)(PVOID, SIZE_T))GetProcAddress(GetModuleHandleW(L"ntdll"), "RtlZeroMemory");
 
     WriteProcessMemory(process, loaderMemory, &loaderParams, sizeof(LoaderData),
         NULL);
